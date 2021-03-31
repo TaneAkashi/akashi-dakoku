@@ -1,11 +1,11 @@
-import puppeteer, { LaunchOptions } from 'puppeteer';
+import type { Browser } from 'puppeteer-core';
 
 export type Options = {
   username: string;
   password: string;
   company: string;
-  puppeteerOptions: LaunchOptions;
 };
+
 export type Mode = 'attendance' | 'leaving' | 'direct_advance' | 'direct_return' | 'break_begin' | 'break_end';
 
 export type Result = {
@@ -18,20 +18,14 @@ const initialOptions: Options = {
   username: '',
   password: '',
   company: '',
-  puppeteerOptions: {},
 };
 
-const dakoku = async (options: Partial<Options>, mode: Mode, telework: Boolean = false): Promise<Result> => {
-  const { username, password, company, puppeteerOptions } = {
+export const dakoku = (browser: Browser) => async (options: Options, mode: Mode, telework: Boolean = false): Promise<Result> => {
+  const { username, password, company } = {
     ...initialOptions,
     ...options,
-    puppeteerOptions: {
-      ...initialOptions.puppeteerOptions,
-      ...options.puppeteerOptions,
-    },
   };
 
-  const browser = await puppeteer.launch(puppeteerOptions);
   const page = await browser.newPage();
 
   await page.emulate({
@@ -81,11 +75,3 @@ const dakoku = async (options: Partial<Options>, mode: Mode, telework: Boolean =
 
   return response;
 };
-
-export const startWork = (options: Partial<Options>): Promise<Result> => dakoku(options, 'attendance');
-export const startTelework = (options: Partial<Options>): Promise<Result> => dakoku(options, 'attendance', true);
-export const finishWork = (options: Partial<Options>): Promise<Result> => dakoku(options, 'leaving');
-export const startWorkDirectly = (options: Partial<Options>): Promise<Result> => dakoku(options, 'direct_advance');
-export const finishWorkDirectly = (options: Partial<Options>): Promise<Result> => dakoku(options, 'direct_return');
-export const pauseWork = (options: Partial<Options>): Promise<Result> => dakoku(options, 'break_begin');
-export const restartWork = (options: Partial<Options>): Promise<Result> => dakoku(options, 'break_end');
