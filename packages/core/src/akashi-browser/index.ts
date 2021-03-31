@@ -1,4 +1,5 @@
 import type { Browser } from 'puppeteer';
+import type { Browser as BrowserCore } from 'puppeteer-core';
 
 export type Options = {
   username: string;
@@ -20,7 +21,7 @@ const initialOptions: Options = {
   company: '',
 };
 
-const core = (browser: Browser) => async (options: Options, mode: Mode, telework: Boolean = false): Promise<Result> => {
+const core = (browser: Browser | BrowserCore) => async (options: Options, mode: Mode, telework: Boolean = false): Promise<Result> => {
   const { username, password, company } = {
     ...initialOptions,
     ...options,
