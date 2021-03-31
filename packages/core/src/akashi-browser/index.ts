@@ -20,7 +20,7 @@ const initialOptions: Options = {
   company: '',
 };
 
-export const dakoku = (browser: Browser) => async (options: Options, mode: Mode, telework: Boolean = false): Promise<Result> => {
+const core = (browser: Browser) => async (options: Options, mode: Mode, telework: Boolean = false): Promise<Result> => {
   const { username, password, company } = {
     ...initialOptions,
     ...options,
@@ -75,3 +75,13 @@ export const dakoku = (browser: Browser) => async (options: Options, mode: Mode,
 
   return response;
 };
+
+export const dakoku = (browser: Browser) => ({
+  startWork: (options: Options): Promise<Result> => core(browser)(options, 'attendance'),
+  startTelework: (options: Options): Promise<Result> => core(browser)(options, 'attendance', true),
+  finishWork: (options: Options): Promise<Result> => core(browser)(options, 'leaving'),
+  startWorkDirectly: (options: Options): Promise<Result> => core(browser)(options, 'direct_advance'),
+  finishWorkDirectly: (options: Options): Promise<Result> => core(browser)(options, 'direct_return'),
+  pauseWork: (options: Options): Promise<Result> => core(browser)(options, 'break_begin'),
+  restartWork: (options: Options): Promise<Result> => core(browser)(options, 'break_end'),
+});
