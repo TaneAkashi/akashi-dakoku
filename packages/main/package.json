@@ -1,0 +1,23 @@
+{
+  "name": "akashi-dakoku",
+  "version": "0.1.0",
+  "description": "AKASHI 打刻",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "author": "Amon Sawamura",
+  "license": "MIT",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "yarn build"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "puppeteer": "^8.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.2.3"
+  }
+}
