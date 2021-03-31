@@ -54,6 +54,7 @@ const core = (browser: Browser | BrowserCore) => async (
     waitUntil: 'domcontentloaded',
   });
 
+  await page.click('#sound-switch [title="打刻音OFF"]');
   await page.click(`a[data-punch-type="${mode}"]`);
   await page.waitForSelector('div[data-modal-id="embossing"].is-show');
   const $status = await page.$('.p-embossing-modal__status');
@@ -78,6 +79,8 @@ const core = (browser: Browser | BrowserCore) => async (
       response.telework = '既にテレワークを開始しています';
     }
   }
+
+  await page.close();
 
   return response;
 };
