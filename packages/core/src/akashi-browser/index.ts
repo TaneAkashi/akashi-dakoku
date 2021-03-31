@@ -1,5 +1,5 @@
-import type { Browser } from 'puppeteer';
-import type { Browser as BrowserCore } from 'puppeteer-core';
+import type { Page } from 'puppeteer';
+import type { Page as PageCore } from 'puppeteer-core';
 
 export type Options = {
   username: string;
@@ -21,17 +21,11 @@ const initialOptions: Options = {
   company: '',
 };
 
-const core = (browser: Browser | BrowserCore) => async (
-  options: Options,
-  mode: Mode,
-  telework = false
-): Promise<Result> => {
+const core = (page: Page | PageCore) => async (options: Options, mode: Mode, telework = false): Promise<Result> => {
   const { username, password, company } = {
     ...initialOptions,
     ...options,
   };
-
-  const page = await browser.newPage();
 
   await page.emulate({
     viewport: {
@@ -86,7 +80,7 @@ const core = (browser: Browser | BrowserCore) => async (
 };
 
 export const dakoku = (
-  browser: Browser | BrowserCore
+  page: Page | PageCore
 ): {
   startWork: (options: Options) => Promise<Result>;
   startTelework: (options: Options) => Promise<Result>;
@@ -96,11 +90,11 @@ export const dakoku = (
   pauseWork: (options: Options) => Promise<Result>;
   restartWork: (options: Options) => Promise<Result>;
 } => ({
-  startWork: (options) => core(browser)(options, 'attendance'),
-  startTelework: (options) => core(browser)(options, 'attendance', true),
-  finishWork: (options) => core(browser)(options, 'leaving'),
-  startWorkDirectly: (options) => core(browser)(options, 'direct_advance'),
-  finishWorkDirectly: (options) => core(browser)(options, 'direct_return'),
-  pauseWork: (options) => core(browser)(options, 'break_begin'),
-  restartWork: (options) => core(browser)(options, 'break_end'),
+  startWork: (options) => core(page)(options, 'attendance'),
+  startTelework: (options) => core(page)(options, 'attendance', true),
+  finishWork: (options) => core(page)(options, 'leaving'),
+  startWorkDirectly: (options) => core(page)(options, 'direct_advance'),
+  finishWorkDirectly: (options) => core(page)(options, 'direct_return'),
+  pauseWork: (options) => core(page)(options, 'break_begin'),
+  restartWork: (options) => core(page)(options, 'break_end'),
 });
