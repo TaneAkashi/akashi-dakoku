@@ -18,6 +18,9 @@ jobs:
         with:
           node-version: 10
 
+      - name: Install Dependencies
+        run: yarn --frozen-lockfile
+
       - name: Publish
         uses: JS-DevTools/npm-publish@v1
         with:
