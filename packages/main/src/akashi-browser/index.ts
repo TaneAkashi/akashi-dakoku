@@ -23,7 +23,8 @@ const dakoku = async (options: Options, mode: keyof ReturnType<typeof core.dakok
   };
 
   const browser = await puppeteer.launch(puppeteerOptions);
-  return core.dakoku(browser)[mode](coreOptions);
+  const func = core.dakoku(browser)[mode];
+  return func(coreOptions);
 };
 
 export const startWork = (options: Options): Promise<core.Result> => dakoku(options, 'startWork');
