@@ -1,5 +1,5 @@
 import puppeteer, { LaunchOptions } from 'puppeteer';
-import core from 'akashi-dakoku-core';
+import * as core from 'akashi-dakoku-core';
 
 export type Options = {
   puppeteerOptions?: LaunchOptions;
