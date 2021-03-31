@@ -1,11 +1,12 @@
-import puppeteer, { LaunchOptions } from 'puppeteer';
+import type { Browser } from 'puppeteer';
+import type { Browser as BrowserCore } from 'puppeteer-core';
 
 export type Options = {
   username: string;
   password: string;
   company: string;
-  puppeteerOptions: LaunchOptions;
 };
+
 export type Mode = 'attendance' | 'leaving' | 'direct_advance' | 'direct_return' | 'break_begin' | 'break_end';
 
 export type Result = {
@@ -18,20 +19,18 @@ const initialOptions: Options = {
   username: '',
   password: '',
   company: '',
-  puppeteerOptions: {},
 };
 
-const dakoku = async (options: Partial<Options>, mode: Mode, telework = false): Promise<Result> => {
-  const { username, password, company, puppeteerOptions } = {
+const core = (browser: Browser | BrowserCore) => async (
+  options: Options,
+  mode: Mode,
+  telework = false
+): Promise<Result> => {
+  const { username, password, company } = {
     ...initialOptions,
     ...options,
-    puppeteerOptions: {
-      ...initialOptions.puppeteerOptions,
-      ...options.puppeteerOptions,
-    },
   };
 
-  const browser = await puppeteer.launch(puppeteerOptions);
   const page = await browser.newPage();
 
   await page.emulate({
@@ -58,22 +57,22 @@ const dakoku = async (options: Partial<Options>, mode: Mode, telework = false): 
   await page.click(`a[data-punch-type="${mode}"]`);
   await page.waitForSelector('div[data-modal-id="embossing"].is-show');
   const $status = await page.$('.p-embossing-modal__status');
-  const status = await page.evaluate((element) => element.textContent, $status);
+  const status = await page.evaluate((element) => element.textContent, $status as any);
   const $note = await page.$('.p-embossing-modal__alert__note:last-child');
-  const note = await page.evaluate((element) => element.textContent, $note);
+  const note = await page.evaluate((element) => element.textContent, $note as any);
   await page.click('div[data-modal-id="embossing"] .modal-button-area > div');
 
   const response: Result = { status, note };
 
   if (telework) {
     const $button = await page.$('#telework-switch > button');
-    const button = await page.evaluate((element) => element.textContent, $button);
+    const button = await page.evaluate((element) => element.textContent, $button as any);
 
     if (button === 'テレワークを開始する') {
       await page.click('#telework-switch > button');
       await page.waitForSelector('div.p-toast--runtime.is-show');
       const $status = await page.$('div.p-toast--runtime.is-show');
-      const status = await page.evaluate((element) => element.textContent, $status);
+      const status = await page.evaluate((element) => element.textContent, $status as any);
       response.telework = status;
     } else {
       response.telework = '既にテレワークを開始しています';
@@ -83,10 +82,22 @@ const dakoku = async (options: Partial<Options>, mode: Mode, telework = false): 
   return response;
 };
 
-export const startWork = (options: Partial<Options>): Promise<Result> => dakoku(options, 'attendance');
-export const startTelework = (options: Partial<Options>): Promise<Result> => dakoku(options, 'attendance', true);
-export const finishWork = (options: Partial<Options>): Promise<Result> => dakoku(options, 'leaving');
-export const startWorkDirectly = (options: Partial<Options>): Promise<Result> => dakoku(options, 'direct_advance');
-export const finishWorkDirectly = (options: Partial<Options>): Promise<Result> => dakoku(options, 'direct_return');
-export const pauseWork = (options: Partial<Options>): Promise<Result> => dakoku(options, 'break_begin');
-export const restartWork = (options: Partial<Options>): Promise<Result> => dakoku(options, 'break_end');
+export const dakoku = (
+  browser: Browser | BrowserCore
+): {
+  startWork: (options: Options) => Promise<Result>;
+  startTelework: (options: Options) => Promise<Result>;
+  finishWork: (options: Options) => Promise<Result>;
+  startWorkDirectly: (options: Options) => Promise<Result>;
+  finishWorkDirectly: (options: Options) => Promise<Result>;
+  pauseWork: (options: Options) => Promise<Result>;
+  restartWork: (options: Options) => Promise<Result>;
+} => ({
+  startWork: (options) => core(browser)(options, 'attendance'),
+  startTelework: (options) => core(browser)(options, 'attendance', true),
+  finishWork: (options) => core(browser)(options, 'leaving'),
+  startWorkDirectly: (options) => core(browser)(options, 'direct_advance'),
+  finishWorkDirectly: (options) => core(browser)(options, 'direct_return'),
+  pauseWork: (options) => core(browser)(options, 'break_begin'),
+  restartWork: (options) => core(browser)(options, 'break_end'),
+});

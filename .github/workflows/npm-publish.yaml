@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  publish:
-    name: Publish
+  publish-main:
+    name: Publish main
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -19,10 +19,35 @@ jobs:
           node-version: 10
 
       - name: Install Dependencies
-        run: yarn --frozen-lockfile
+        run: yarn --frozen-lockfile --focus
+        working-directory: packages/main
 
       - name: Publish
         uses: JS-DevTools/npm-publish@v1
         with:
+          package: packages/main
+          token: ${{ secrets.NPM_TOKEN }}
+          access: public
+
+  publish-core:
+    name: Publish core
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js 10
+        uses: actions/setup-node@v2
+        with:
+          node-version: 10
+
+      - name: Install Dependencies
+        run: yarn --frozen-lockfile --focus
+        working-directory: packages/core
+
+      - name: Publish
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          package: packages/core
           token: ${{ secrets.NPM_TOKEN }}
           access: public
