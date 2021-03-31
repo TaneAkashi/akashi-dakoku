@@ -24,7 +24,7 @@ jobs:
       - name: Publish
         uses: JS-DevTools/npm-publish@v1
         with:
-          package: packages/main
+          package: packages/main/package.json
           token: ${{ secrets.NPM_TOKEN }}
           access: public
 
@@ -46,6 +46,6 @@ jobs:
       - name: Publish
         uses: JS-DevTools/npm-publish@v1
         with:
-          package: packages/core
+          package: packages/core/package.json
           token: ${{ secrets.NPM_TOKEN }}
           access: public
