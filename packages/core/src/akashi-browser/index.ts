@@ -80,6 +80,8 @@ const core = (browser: Browser | BrowserCore) => async (
     }
   }
 
+  await page.close();
+
   return response;
 };
 
