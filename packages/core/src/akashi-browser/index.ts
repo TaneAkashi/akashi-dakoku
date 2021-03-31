@@ -53,22 +53,22 @@ const core = (browser: Browser | BrowserCore) => async (options: Options, mode: 
   await page.click(`a[data-punch-type="${mode}"]`);
   await page.waitForSelector('div[data-modal-id="embossing"].is-show');
   const $status = await page.$('.p-embossing-modal__status');
-  const status = await page.evaluate((element) => element.textContent, $status);
+  const status = await page.evaluate((element) => element.textContent, $status as any);
   const $note = await page.$('.p-embossing-modal__alert__note:last-child');
-  const note = await page.evaluate((element) => element.textContent, $note);
+  const note = await page.evaluate((element) => element.textContent, $note as any);
   await page.click('div[data-modal-id="embossing"] .modal-button-area > div');
 
   const response: Result = { status, note };
 
   if (telework) {
     const $button = await page.$('#telework-switch > button');
-    const button = await page.evaluate((element) => element.textContent, $button);
+    const button = await page.evaluate((element) => element.textContent, $button as any);
 
     if (button === 'テレワークを開始する') {
       await page.click('#telework-switch > button');
       await page.waitForSelector('div.p-toast--runtime.is-show');
       const $status = await page.$('div.p-toast--runtime.is-show');
-      const status = await page.evaluate((element) => element.textContent, $status);
+      const status = await page.evaluate((element) => element.textContent, $status as any);
       response.telework = status;
     } else {
       response.telework = '既にテレワークを開始しています';
