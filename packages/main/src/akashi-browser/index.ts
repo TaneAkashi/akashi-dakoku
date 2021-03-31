@@ -12,7 +12,7 @@ const initialOptions: Options = {
   puppeteerOptions: {},
 };
 
-const dakoku = async (options: Options, mode: core.Mode, telework: Boolean = false): Promise<core.Result> => {
+const dakoku = async (options: Options, mode: keyof ReturnType<typeof core.dakoku>): Promise<core.Result> => {
   const { puppeteerOptions, ...coreOptions } = {
     ...initialOptions,
     ...options,
@@ -23,13 +23,13 @@ const dakoku = async (options: Options, mode: core.Mode, telework: Boolean = fal
   };
 
   const browser = await puppeteer.launch(puppeteerOptions);
-  return core.dakoku(browser)(coreOptions, mode, telework);
+  return core.dakoku(browser)[mode](coreOptions);
 };
 
-export const startWork = (options: Options): Promise<core.Result> => dakoku(options, 'attendance');
-export const startTelework = (options: Options): Promise<core.Result> => dakoku(options, 'attendance', true);
-export const finishWork = (options: Options): Promise<core.Result> => dakoku(options, 'leaving');
-export const startWorkDirectly = (options: Options): Promise<core.Result> => dakoku(options, 'direct_advance');
-export const finishWorkDirectly = (options: Options): Promise<core.Result> => dakoku(options, 'direct_return');
-export const pauseWork = (options: Options): Promise<core.Result> => dakoku(options, 'break_begin');
-export const restartWork = (options: Options): Promise<core.Result> => dakoku(options, 'break_end');
+export const startWork = (options: Options): Promise<core.Result> => dakoku(options, 'startWork');
+export const startTelework = (options: Options): Promise<core.Result> => dakoku(options, 'startTelework');
+export const finishWork = (options: Options): Promise<core.Result> => dakoku(options, 'finishWork');
+export const startWorkDirectly = (options: Options): Promise<core.Result> => dakoku(options, 'startWorkDirectly');
+export const finishWorkDirectly = (options: Options): Promise<core.Result> => dakoku(options, 'finishWorkDirectly');
+export const pauseWork = (options: Options): Promise<core.Result> => dakoku(options, 'pauseWork');
+export const restartWork = (options: Options): Promise<core.Result> => dakoku(options, 'restartWork');
