@@ -1,4 +1,4 @@
-import type { Browser } from 'puppeteer-core';
+import type { Browser } from 'puppeteer';
 
 export type Options = {
   username: string;
