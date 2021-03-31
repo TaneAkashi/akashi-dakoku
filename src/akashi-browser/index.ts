@@ -21,7 +21,7 @@ const initialOptions: Options = {
   puppeteerOptions: {},
 };
 
-const dakoku = async (options: Partial<Options>, mode: Mode, telework: Boolean = false): Promise<Result> => {
+const dakoku = async (options: Partial<Options>, mode: Mode, telework = false): Promise<Result> => {
   const { username, password, company, puppeteerOptions } = {
     ...initialOptions,
     ...options,
@@ -66,7 +66,7 @@ const dakoku = async (options: Partial<Options>, mode: Mode, telework: Boolean =
 
   if (telework) {
     const $button = await page.$('#telework-switch > button');
-    const button = await page.evaluate(element => element.textContent, $status);
+    const button = await page.evaluate(element => element.textContent, $button);
 
     if (button === 'テレワークを開始する') {
       await page.click('#telework-switch > button');
