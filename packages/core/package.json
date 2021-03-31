@@ -1,7 +1,7 @@
 {
   "name": "akashi-dakoku-core",
   "version": "0.1.0",
-  "description": "AKASHI 打刻",
+  "description": "AKASHI 打刻 コア",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "author": "Amon Sawamura",
