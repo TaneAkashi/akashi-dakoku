@@ -21,7 +21,8 @@ jobs:
           node-version: 10
 
       - name: Install Dependencies
-        run: yarn --frozen-lockfile
+        run: yarn --frozen-lockfile --focus
+        working-directory: packages/main
 
       - name: Publish
         uses: JS-DevTools/npm-publish@v1
@@ -43,7 +44,8 @@ jobs:
           node-version: 10
 
       - name: Install Dependencies
-        run: yarn --frozen-lockfile
+        run: yarn --frozen-lockfile --focus
+        working-directory: packages/core
 
       - name: Publish
         uses: JS-DevTools/npm-publish@v1
