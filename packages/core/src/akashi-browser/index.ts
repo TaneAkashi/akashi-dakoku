@@ -21,7 +21,11 @@ const initialOptions: Options = {
   company: '',
 };
 
-const core = (browser: Browser | BrowserCore) => async (options: Options, mode: Mode, telework: Boolean = false): Promise<Result> => {
+const core = (browser: Browser | BrowserCore) => async (
+  options: Options,
+  mode: Mode,
+  telework = false
+): Promise<Result> => {
   const { username, password, company } = {
     ...initialOptions,
     ...options,
@@ -78,12 +82,22 @@ const core = (browser: Browser | BrowserCore) => async (options: Options, mode: 
   return response;
 };
 
-export const dakoku = (browser: Browser) => ({
-  startWork: (options: Options): Promise<Result> => core(browser)(options, 'attendance'),
-  startTelework: (options: Options): Promise<Result> => core(browser)(options, 'attendance', true),
-  finishWork: (options: Options): Promise<Result> => core(browser)(options, 'leaving'),
-  startWorkDirectly: (options: Options): Promise<Result> => core(browser)(options, 'direct_advance'),
-  finishWorkDirectly: (options: Options): Promise<Result> => core(browser)(options, 'direct_return'),
-  pauseWork: (options: Options): Promise<Result> => core(browser)(options, 'break_begin'),
-  restartWork: (options: Options): Promise<Result> => core(browser)(options, 'break_end'),
+export const dakoku = (
+  browser: Browser | BrowserCore
+): {
+  startWork: (options: Options) => Promise<Result>;
+  startTelework: (options: Options) => Promise<Result>;
+  finishWork: (options: Options) => Promise<Result>;
+  startWorkDirectly: (options: Options) => Promise<Result>;
+  finishWorkDirectly: (options: Options) => Promise<Result>;
+  pauseWork: (options: Options) => Promise<Result>;
+  restartWork: (options: Options) => Promise<Result>;
+} => ({
+  startWork: (options) => core(browser)(options, 'attendance'),
+  startTelework: (options) => core(browser)(options, 'attendance', true),
+  finishWork: (options) => core(browser)(options, 'leaving'),
+  startWorkDirectly: (options) => core(browser)(options, 'direct_advance'),
+  finishWorkDirectly: (options) => core(browser)(options, 'direct_return'),
+  pauseWork: (options) => core(browser)(options, 'break_begin'),
+  restartWork: (options) => core(browser)(options, 'break_end'),
 });
