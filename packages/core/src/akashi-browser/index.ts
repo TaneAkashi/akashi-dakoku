@@ -51,6 +51,7 @@ const core = (page: Page | PageCore) => async (options: Options, mode: Mode, tel
   if (page.url() !== 'https://atnd.ak4.jp/manager') {
     throw new Error('ログインに失敗しました');
   }
+
   await page.goto('https://atnd.ak4.jp/mypage/punch', {
     waitUntil: 'domcontentloaded',
   });
