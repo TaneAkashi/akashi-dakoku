@@ -21,20 +21,16 @@ const initialOptions: Options = {
   company: '',
 };
 
-const core = (page: Page | PageCore) => async (options: Options, mode: Mode, telework = false): Promise<Result> => {
-  const { username, password, company } = {
-    ...initialOptions,
-    ...options,
-  };
+const emulateOptions: Parameters<Page['emulate']>[0] | Parameters<PageCore['emulate']>[0] = {
+  viewport: {
+    width: 1402,
+    height: 740,
+  },
+  userAgent:
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36',
+};
 
-  await page.emulate({
-    viewport: {
-      width: 1402,
-      height: 740,
-    },
-    userAgent:
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36',
-  });
+const login = (page: Page | PageCore) => async (username: string, password: string, company: string): Promise<void> => {
   await page.goto('https://atnd.ak4.jp/login', {
     waitUntil: 'domcontentloaded',
   });
@@ -44,6 +40,25 @@ const core = (page: Page | PageCore) => async (options: Options, mode: Mode, tel
   await page.type('#form_company_id', company);
   await page.click('input[type="submit"]');
   await page.waitForNavigation();
+
+  // ログインに成功すると /manager に遷移する
+  // ログインに失敗すると /login に遷移する
+  // ログインに失敗しても、空白以外は特にメッセージが出ないため、決め打ちのテキストにしている
+  if (page.url() !== 'https://atnd.ak4.jp/manager') {
+    throw new Error('ログインに失敗しました');
+  }
+};
+
+const core = (page: Page | PageCore) => async (options: Options, mode: Mode, telework = false): Promise<Result> => {
+  const { username, password, company } = {
+    ...initialOptions,
+    ...options,
+  };
+
+  await page.emulate(emulateOptions);
+
+  await login(page)(username, password, company);
+
   await page.goto('https://atnd.ak4.jp/mypage/punch', {
     waitUntil: 'domcontentloaded',
   });
@@ -98,3 +113,19 @@ export const dakoku = (
   pauseWork: (options) => core(page)(options, 'break_begin'),
   restartWork: (options) => core(page)(options, 'break_end'),
 });
+
+export const checkLogin = (page: Page | PageCore) => async (options: Options): Promise<boolean> => {
+  const { username, password, company } = {
+    ...initialOptions,
+    ...options,
+  };
+
+  await page.emulate(emulateOptions);
+
+  const result = await login(page)(username, password, company)
+    .then(() => true)
+    .catch(() => false);
+  await page.close();
+
+  return result;
+};

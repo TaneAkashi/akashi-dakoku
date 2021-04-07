@@ -35,3 +35,18 @@ export const startWorkDirectly = (options: Options): Promise<core.Result> => dak
 export const finishWorkDirectly = (options: Options): Promise<core.Result> => dakoku(options, 'finishWorkDirectly');
 export const pauseWork = (options: Options): Promise<core.Result> => dakoku(options, 'pauseWork');
 export const restartWork = (options: Options): Promise<core.Result> => dakoku(options, 'restartWork');
+
+export const checkLogin = async (options: Options): Promise<boolean> => {
+  const { puppeteerOptions, ...coreOptions } = {
+    ...initialOptions,
+    ...options,
+    puppeteerOptions: {
+      ...initialOptions.puppeteerOptions,
+      ...options.puppeteerOptions,
+    },
+  };
+
+  const browser = await puppeteer.launch(puppeteerOptions);
+  const page = await browser.newPage();
+  return core.checkLogin(page)(coreOptions);
+};
