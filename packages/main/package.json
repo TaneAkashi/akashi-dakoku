@@ -1,10 +1,15 @@
 {
   "name": "akashi-dakoku",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "AKASHI 打刻",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "author": "Amon Sawamura",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TaneAkashi/akashi-dakoku.git",
+    "directory": "packages/main"
+  },
+  "author": "TaneAkashi",
   "license": "MIT",
   "files": [
     "lib"
@@ -14,7 +19,7 @@
     "prepublishOnly": "yarn build"
   },
   "dependencies": {
-    "akashi-dakoku-core": "0.3.0",
+    "akashi-dakoku-core": "0.4.0",
     "puppeteer": "^8.0.0"
   },
   "devDependencies": {
