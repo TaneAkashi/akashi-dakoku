@@ -21,20 +21,7 @@ const initialOptions: Options = {
   company: '',
 };
 
-const core = (page: Page | PageCore) => async (options: Options, mode: Mode, telework = false): Promise<Result> => {
-  const { username, password, company } = {
-    ...initialOptions,
-    ...options,
-  };
-
-  await page.emulate({
-    viewport: {
-      width: 1402,
-      height: 740,
-    },
-    userAgent:
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36',
-  });
+const login = (page: Page | PageCore) => async (username: string, password: string, company: string): Promise<void> => {
   await page.goto('https://atnd.ak4.jp/login', {
     waitUntil: 'domcontentloaded',
   });
@@ -51,6 +38,24 @@ const core = (page: Page | PageCore) => async (options: Options, mode: Mode, tel
   if (page.url() !== 'https://atnd.ak4.jp/manager') {
     throw new Error('ログインに失敗しました');
   }
+};
+
+const core = (page: Page | PageCore) => async (options: Options, mode: Mode, telework = false): Promise<Result> => {
+  const { username, password, company } = {
+    ...initialOptions,
+    ...options,
+  };
+
+  await page.emulate({
+    viewport: {
+      width: 1402,
+      height: 740,
+    },
+    userAgent:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36',
+  });
+
+  await login(page)(username, password, company);
 
   await page.goto('https://atnd.ak4.jp/mypage/punch', {
     waitUntil: 'domcontentloaded',
