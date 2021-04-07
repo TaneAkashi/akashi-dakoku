@@ -4,7 +4,12 @@
   "description": "AKASHI 打刻 コア",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "author": "Amon Sawamura",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TaneAkashi/akashi-dakoku.git",
+    "directory": "packages/core"
+  },
+  "author": "TaneAkashi",
   "license": "MIT",
   "files": [
     "lib"
