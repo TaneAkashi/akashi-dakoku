@@ -111,3 +111,26 @@ export const dakoku = (
   pauseWork: (options) => core(page)(options, 'break_begin'),
   restartWork: (options) => core(page)(options, 'break_end'),
 });
+
+export const checkLogin = (page: Page | PageCore) => async (options: Options): Promise<boolean> => {
+  const { username, password, company } = {
+    ...initialOptions,
+    ...options,
+  };
+
+  await page.emulate({
+    viewport: {
+      width: 1402,
+      height: 740,
+    },
+    userAgent:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36',
+  });
+
+  const result = await login(page)(username, password, company)
+    .then(() => true)
+    .catch(() => false);
+  await page.close();
+
+  return result;
+};
