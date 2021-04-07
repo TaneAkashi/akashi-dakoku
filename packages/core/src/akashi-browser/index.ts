@@ -45,6 +45,9 @@ const core = (page: Page | PageCore) => async (options: Options, mode: Mode, tel
   await page.click('input[type="submit"]');
   await page.waitForNavigation();
 
+  // ログインに成功すると /manager に遷移する
+  // ログインに失敗すると /login に遷移する
+  // ログインに失敗しても、空白以外は特にメッセージが出ないため、決め打ちのテキストにしている
   if (page.url() !== 'https://atnd.ak4.jp/manager') {
     throw new Error('ログインに失敗しました');
   }
