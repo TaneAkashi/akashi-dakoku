@@ -1,6 +1,6 @@
 {
   "name": "akashi-dakoku",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "AKASHI 打刻",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -19,7 +19,7 @@
     "prepublishOnly": "yarn build"
   },
   "dependencies": {
-    "akashi-dakoku-core": "0.4.0",
+    "akashi-dakoku-core": "0.5.0",
     "puppeteer": "^8.0.0"
   },
   "devDependencies": {

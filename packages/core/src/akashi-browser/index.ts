@@ -1,5 +1,6 @@
 import type { Page } from 'puppeteer';
 import type { Page as PageCore } from 'puppeteer-core';
+import { getPunchResponse, listenPunchResponse } from './listener';
 
 export type Options = {
   username: string;
@@ -12,6 +13,7 @@ export type Mode = 'attendance' | 'leaving' | 'direct_advance' | 'direct_return'
 export type Result = {
   status: string;
   note: string;
+  time: string;
   telework?: string;
 };
 
@@ -31,7 +33,8 @@ const emulateOptions: Parameters<Page['emulate']>[0] | Parameters<PageCore['emul
 };
 
 const login = (page: Page | PageCore) => async (username: string, password: string, company: string): Promise<void> => {
-  await page.goto('https://atnd.ak4.jp/login', {
+  // ログイン完了後、打刻ページに遷移させる
+  await page.goto('https://atnd.ak4.jp/login?next=%2Fmypage%2Fpunch', {
     waitUntil: 'domcontentloaded',
   });
 
@@ -41,10 +44,8 @@ const login = (page: Page | PageCore) => async (username: string, password: stri
   await page.click('input[type="submit"]');
   await page.waitForNavigation();
 
-  // ログインに成功すると /manager に遷移する
-  // ログインに失敗すると /login に遷移する
-  // ログインに失敗しても、空白以外は特にメッセージが出ないため、決め打ちのテキストにしている
-  if (page.url() !== 'https://atnd.ak4.jp/manager') {
+  if (page.url() !== 'https://atnd.ak4.jp/mypage/punch') {
+    // 打刻ページに遷移をしなければログインできていないはずなのでエラー
     throw new Error('ログインに失敗しました');
   }
 };
@@ -62,31 +63,30 @@ const core = (page: Page | PageCore) => async (options: Options, mode: Mode, tel
   await page.goto('https://atnd.ak4.jp/mypage/punch', {
     waitUntil: 'domcontentloaded',
   });
+  listenPunchResponse(page);
 
   await page.click('#sound-switch [title="打刻音OFF"]');
   await page.click(`a[data-punch-type="${mode}"]`);
   await page.waitForSelector('div[data-modal-id="embossing"].is-show');
-  const $status = await page.$('.p-embossing-modal__status');
-  const status = await page.evaluate((element) => element.textContent, $status as any);
-  const $note = await page.$('.p-embossing-modal__alert__note:last-child');
-  const note = await page.evaluate((element) => element.textContent, $note as any);
+  const res = await getPunchResponse();
   await page.click('div[data-modal-id="embossing"] .modal-button-area > div');
 
-  const response: Result = { status, note };
+  const response: Result = {
+    status: res?.display_name ?? '',
+    note: res?.alerts_type.join('/') ?? '',
+    time: res?.server_time ?? '',
+  };
 
   if (telework) {
-    const $button = await page.$('#telework-switch > button');
-    const button = await page.evaluate((element) => element.textContent, $button as any);
-
-    if (button === 'テレワークを開始する') {
-      await page.click('#telework-switch > button');
-      await page.waitForSelector('div.p-toast--runtime.is-show');
-      const $status = await page.$('div.p-toast--runtime.is-show');
-      const status = await page.evaluate((element) => element.textContent, $status as any);
-      response.telework = status;
-    } else {
-      response.telework = '既にテレワークを開始しています';
-    }
+    await page.goto('https://atnd.ak4.jp/mypage/set_telework?val=true');
+    const res = await page.evaluate(() => {
+      const json = JSON.parse(document.querySelector('body')!.innerText);
+      return json as {
+        toast: string;
+        save_value: 'true' | 'false';
+      };
+    });
+    response.telework = res.toast;
   }
 
   await page.close();
