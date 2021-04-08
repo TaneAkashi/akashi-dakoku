@@ -31,7 +31,8 @@ const emulateOptions: Parameters<Page['emulate']>[0] | Parameters<PageCore['emul
 };
 
 const login = (page: Page | PageCore) => async (username: string, password: string, company: string): Promise<void> => {
-  await page.goto('https://atnd.ak4.jp/login', {
+  // ログイン完了後、打刻ページに遷移させる
+  await page.goto('https://atnd.ak4.jp/login?next=%2Fmypage%2Fpunch', {
     waitUntil: 'domcontentloaded',
   });
 
@@ -41,10 +42,8 @@ const login = (page: Page | PageCore) => async (username: string, password: stri
   await page.click('input[type="submit"]');
   await page.waitForNavigation();
 
-  // ログインに成功すると /manager に遷移する
-  // ログインに失敗すると /login に遷移する
-  // ログインに失敗しても、空白以外は特にメッセージが出ないため、決め打ちのテキストにしている
-  if (page.url() !== 'https://atnd.ak4.jp/manager') {
+  if (page.url() !== 'https://atnd.ak4.jp/mypage/punch') {
+    // 打刻ページに遷移をしなければログインできていないはずなのでエラー
     throw new Error('ログインに失敗しました');
   }
 };
