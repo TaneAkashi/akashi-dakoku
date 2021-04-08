@@ -13,6 +13,7 @@ export type Mode = 'attendance' | 'leaving' | 'direct_advance' | 'direct_return'
 export type Result = {
   status: string;
   note: string;
+  time: string;
   telework?: string;
 };
 
@@ -73,6 +74,7 @@ const core = (page: Page | PageCore) => async (options: Options, mode: Mode, tel
   const response: Result = {
     status: res?.display_name ?? '',
     note: res?.alerts_type.join('/') ?? '',
+    time: res?.server_time ?? '',
   };
 
   if (telework) {

@@ -43,7 +43,6 @@ await dakoku.pauseWork(params);
 await dakoku.restartWork(params);
 
 // 例
-// * note に何が入るかわかりません
-// { status: '出勤', note: '' }
-// { status: '休憩入り', note: '' }
+// { status: '出勤', note: '', time: '2021-04-09T01:45:51+09:00', telework: 'テレワークに設定しました' }
+// { status: '休憩入り', note: '打刻忘れ/休日出勤', time: '2021-04-09T01:45:51+09:00' }
 ```
