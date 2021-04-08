@@ -77,18 +77,15 @@ const core = (page: Page | PageCore) => async (options: Options, mode: Mode, tel
   };
 
   if (telework) {
-    const $button = await page.$('#telework-switch > button');
-    const button = await page.evaluate((element) => element.textContent, $button as any);
-
-    if (button === 'テレワークを開始する') {
-      await page.click('#telework-switch > button');
-      await page.waitForSelector('div.p-toast--runtime.is-show');
-      const $status = await page.$('div.p-toast--runtime.is-show');
-      const status = await page.evaluate((element) => element.textContent, $status as any);
-      response.telework = status;
-    } else {
-      response.telework = '既にテレワークを開始しています';
-    }
+    await page.goto('https://atnd.ak4.jp/mypage/set_telework?val=true');
+    const res = await page.evaluate(() => {
+      const json = JSON.parse(document.querySelector('body')!.innerText);
+      return json as {
+        toast: string;
+        save_value: 'true' | 'false';
+      };
+    });
+    response.telework = res.toast;
   }
 
   await page.close();
