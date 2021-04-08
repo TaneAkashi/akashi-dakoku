@@ -1,5 +1,6 @@
 import type { Page } from 'puppeteer';
 import type { Page as PageCore } from 'puppeteer-core';
+import { getPunchResponse, listenPunchResponse } from './listener';
 
 export type Options = {
   username: string;
@@ -62,17 +63,18 @@ const core = (page: Page | PageCore) => async (options: Options, mode: Mode, tel
   await page.goto('https://atnd.ak4.jp/mypage/punch', {
     waitUntil: 'domcontentloaded',
   });
+  listenPunchResponse(page);
 
   await page.click('#sound-switch [title="打刻音OFF"]');
   await page.click(`a[data-punch-type="${mode}"]`);
   await page.waitForSelector('div[data-modal-id="embossing"].is-show');
-  const $status = await page.$('.p-embossing-modal__status');
-  const status = await page.evaluate((element) => element.textContent, $status as any);
-  const $note = await page.$('.p-embossing-modal__alert__note:last-child');
-  const note = await page.evaluate((element) => element.textContent, $note as any);
+  const res = await getPunchResponse();
   await page.click('div[data-modal-id="embossing"] .modal-button-area > div');
 
-  const response: Result = { status, note };
+  const response: Result = {
+    status: res?.display_name ?? '',
+    note: res?.alerts_type.join('/') ?? '',
+  };
 
   if (telework) {
     const $button = await page.$('#telework-switch > button');
